@@ -42,6 +42,13 @@ class Resolver():
         """
         pass  # pragma: no cover
 
+    def __str__(self):
+        """
+        This allows for usage of resolvers in many of the
+        places where sceptre doesn't explicitly call resolve().
+        """
+        return self.resolve()
+
 
 class ResolvableProperty(object):
     """
@@ -53,6 +60,7 @@ class ResolvableProperty(object):
     :param name: Attribute suffix used to store the property in the instance.
     :type name: string
     """
+
     def __init__(self, name):
         self.name = "_" + name
         self.logger = logging.getLogger(__name__)

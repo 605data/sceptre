@@ -315,6 +315,8 @@ class Template(object):
         if env_var_name not in os.environ:
             msg = '${} is not set, no extra jinja filters will be loaded'
             self.logger.debug(msg.format(env_var_name))
+            self._jinja_filters = {}
+            return self._jinja_filters
         else:
             filter_dir = os.environ[env_var_name]
             if not os.path.exists(filter_dir):

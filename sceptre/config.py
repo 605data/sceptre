@@ -21,6 +21,7 @@ from .exceptions import ConfigItemNotFoundError
 from .exceptions import EnvironmentPathNotFoundError
 from .exceptions import VersionIncompatibleError
 from .hooks import Hook
+from .template import get_jinja_filters
 from .resolvers import Resolver
 from .helpers import get_subclasses
 
@@ -173,6 +174,8 @@ class Config(dict):
                         loader=FileSystemLoader(directory_path),
                         undefined=StrictUndefined
                     )
+                    jinja_filters = get_jinja_filters()
+                    env.filters.update(jinja_filters)
                     template = env.get_template(file_name)
                     rendered_template = template.render(
                         environment_variable=os.environ,

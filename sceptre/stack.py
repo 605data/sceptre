@@ -192,7 +192,7 @@ class Stack(object):
             if hasattr(value, 'resolve'):
                 value = value.resolve()
             out.append({"Key": str(key), "Value": str(value)})
-        out.append({"Key": "Stack", "Value": self.name.split('/')[-1]})
+        out.append({"Key": "Config", "Value": self.name.split('/')[-1]})
         return out
 
     @add_stack_hooks

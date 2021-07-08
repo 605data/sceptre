@@ -36,6 +36,7 @@ def catch_exceptions(func):
             return func(*args, **kwargs)
         except (SceptreException, BotoCoreError, ClientError, Boto3Error,
                 TemplateError) as error:
+            # raise
             write(error)
             sys.exit(1)
 

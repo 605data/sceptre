@@ -381,6 +381,9 @@ class ConfigReader(object):
                 loader=FileSystemLoader(abs_directory_path),
                 undefined=StrictUndefined
             )
+            from sceptre.template import get_jinja_filters
+            jinja_filters = get_jinja_filters()
+            jinja_env.filters.update(jinja_filters)
             template = jinja_env.get_template(basename)
             self.templating_vars.update(stack_group_config)
             rendered_template = template.render(
@@ -388,9 +391,7 @@ class ConfigReader(object):
                 command_path=self.context.command_path.split(path.sep),
                 environment_variable=environ
             )
-
             config = yaml.safe_load(rendered_template)
-
             return config
 
     @staticmethod

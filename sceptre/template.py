@@ -22,6 +22,49 @@ from jinja2 import select_autoescape
 from sceptre.exceptions import UnsupportedTemplateFileTypeError
 from sceptre.exceptions import TemplateSceptreHandlerError
 
+LOGGER = logging.getLogger(__name__)
+
+def get_jinja_filters():
+    """
+    Returns cached jinja filters if already computed, or loads/caches
+    the filters from python files if this is the first time.
+    This (optional) feature relies on the environment variable
+    ${SCEPTRE_JINJA_FILTER_ROOT} because we don't have easy access
+    from here to CLI parsing info or global configuration info.
+    """
+    import glob
+    # give back cached jinja filters if available
+    if hasattr(get_jinja_filters, '_jinja_filters'):
+        return get_jinja_filters._jinja_filters
+    # load jinja filters if not already cached
+    env_var_name = 'SCEPTRE_JINJA_FILTER_ROOT'
+    if env_var_name not in os.environ:
+        msg = '${} is not set, no extra jinja filters will be loaded'
+        LOGGER.warning(msg.format(env_var_name))
+        get_jinja_filters._jinja_filters = {}
+        return get_jinja_filters._jinja_filters
+    else:
+        filter_dir = os.environ[env_var_name]
+        if not os.path.exists(filter_dir):
+            err = '${} is set, but directory does not exist!'
+            raise ValueError(err.format(env_var_name))
+        else:
+            msg = 'loading jinja filters from: {}'
+            LOGGER.debug(msg.format(filter_dir))
+            get_jinja_filters._jinja_filters = {}
+            for fpath in glob.glob(os.path.join(filter_dir, '*.py')):
+                LOGGER.debug('  loading filter: {}'.format(fpath))
+                mod = imp.load_source('dynamic_jinja_filters', fpath)
+                for name in dir(mod):
+                    # ignore anything like private methods
+                    if name.startswith('_'):
+                        continue
+                    else:
+                        fxn = getattr(mod, name)
+                        # ignore things that aren't callables
+                        if callable(fxn):
+                            get_jinja_filters._jinja_filters[name] = fxn
+            return get_jinja_filters._jinja_filters
 
 class Template(object):
     """
@@ -337,6 +380,7 @@ class Template(object):
         :rtype: str
         """
         logger = logging.getLogger(__name__)
+        jinja_filters = get_jinja_filters()
         logger.debug("%s Rendering CloudFormation template", filename)
         env = Environment(
             autoescape=select_autoescape(
@@ -344,8 +388,10 @@ class Template(object):
                 default=True,
             ),
             loader=FileSystemLoader(template_dir),
-            undefined=StrictUndefined
+            undefined=StrictUndefined,
         )
+        env.filters.update(jinja_filters)
+        logger.debug("added jinja filters: {}".format(list(jinja_filters.keys())))
         template = env.get_template(filename)
         body = template.render(**jinja_vars)
         return body

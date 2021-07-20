@@ -392,6 +392,24 @@ class Template(object):
         )
         env.filters.update(jinja_filters)
         logger.debug("added jinja filters: {}".format(list(jinja_filters.keys())))
-        template = env.get_template(filename)
+        # FIXME: backwards compatibility hack,
+        # this avoids the need to change every stack instance
+        # that mentions `template: templates/foo` to read
+        # instead as `template: foo`.  we should do this
+        # find/replace eventually but keeping backwards
+        # compatibility makes our transition easier since there
+        # is no need to make minor changes to hundreds of files.
+        from jinja2.exceptions import TemplateNotFound
+        try:
+            template = env.get_template(filename)
+        except (TemplateNotFound, ) as exc:
+            if 'templates/templates' in template_dir:
+                return Template._render_jinja_template(
+                    template_dir.replace('templates/templates', 'templates/'),
+                    filename, jinja_vars)
+            else:
+                logger.critical("could not find template {} in {}".format(
+                    filename, template_dir))
+                raise
         body = template.render(**jinja_vars)
         return body

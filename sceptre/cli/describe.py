@@ -49,14 +49,16 @@ def describe_change_set(ctx, path, change_set_name, verbose):
     )
 
     plan = SceptrePlan(context)
-
+    # FIXME: changed from upstream to write proper
+    # JSON output, we need this for atlantis planning
+    import json
     responses = plan.describe_change_set(change_set_name)
     for response in responses.values():
         description = response
+        description['CreationTime'] = str(description.get('CreationTime',''))
         if not verbose:
             description = simplify_change_set_description(description)
-        write(description, context.output_format, context.no_colour)
-
+        write(json.dumps(description), context.output_format, context.no_colour)
 
 @describe_group.command(name="policy")
 @click.argument("path")

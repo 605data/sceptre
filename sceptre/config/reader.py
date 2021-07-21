@@ -503,6 +503,7 @@ class ConfigReader(object):
         )
         stack = Stack(
             name=stack_name,
+            raw_config=config,
             project_code=config["project_code"],
             template_path=abs_template_path,
             region=config["region"],
@@ -523,7 +524,7 @@ class ConfigReader(object):
             notifications=config.get("notifications"),
             on_failure=config.get("on_failure"),
             stack_timeout=config.get("stack_timeout", 0),
-            stack_group_config=parsed_stack_group_config
+            stack_group_config=parsed_stack_group_config,
         )
 
         del self.templating_vars["stack_group_config"]

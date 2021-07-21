@@ -118,7 +118,7 @@ class Stack(object):
         sceptre_user_data=None, hooks=None, s3_details=None, iam_role=None,
         dependencies=None, role_arn=None, protected=False, tags=None,
         external_name=None, notifications=None, on_failure=None, profile=None,
-        stack_timeout=0, stack_group_config={}
+        stack_timeout=0, stack_group_config={}, raw_config={},
     ):
         self.logger = logging.getLogger(__name__)
 
@@ -149,6 +149,7 @@ class Stack(object):
         self._sceptre_user_data_is_resolved = False
         self.notifications = notifications or []
         self.stack_group_config = stack_group_config or {}
+        self.raw_config = raw_config or {}
 
     def __repr__(self):
         return (

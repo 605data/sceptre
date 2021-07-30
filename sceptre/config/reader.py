@@ -501,6 +501,10 @@ class ConfigReader(object):
         s3_details = self._collect_s3_details(
             stack_name, config
         )
+        stack_tags = config.get("stack_tags", {})
+        for k,v in stack_tags.items():
+            if hasattr(v, 'resolve'):
+                stack_tags[k] = v.resolve()
         stack = Stack(
             name=stack_name,
             raw_config=config,
@@ -519,7 +523,7 @@ class ConfigReader(object):
             dependencies=config.get("dependencies", []),
             role_arn=config.get("role_arn"),
             protected=config.get("protect", False),
-            tags=config.get("stack_tags", {}),
+            tags=stack_tags,
             external_name=config.get("stack_name"),
             notifications=config.get("notifications"),
             on_failure=config.get("on_failure"),

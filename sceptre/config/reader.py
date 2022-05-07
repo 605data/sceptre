@@ -530,11 +530,12 @@ class ConfigReader(object):
             stack_name, config
         )
         stack_tags = config.get("stack_tags", {})
-        for k,v in stack_tags.items():
+        for k, v in stack_tags.items():
             if hasattr(v, 'resolve'):
                 stack_tags[k] = v.resolve()
         stack = Stack(
             name=stack_name,
+            raw_config=config,
             project_code=config["project_code"],
             template_path=config.get("template_path"),
             template_handler_config=config.get("template"),

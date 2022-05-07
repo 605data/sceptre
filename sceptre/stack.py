@@ -162,7 +162,8 @@ class Stack(object):
         required_version: str = None, parameters: dict = None, sceptre_user_data: dict = None, hooks: Hook = None,
         s3_details: dict = None, iam_role: str = None, dependencies=None, role_arn: str = None, protected: bool = False,
         tags: dict = None, external_name: str = None, notifications=None, on_failure: str = None, profile: str = None,
-        stack_timeout: int = 0, iam_role_session_duration: int = 0, stack_group_config: dict = {}
+        stack_timeout: int = 0, iam_role_session_duration: int = 0, stack_group_config: dict = {},
+        raw_config: dict = {},
     ):
         self.logger = logging.getLogger(__name__)
 
@@ -204,6 +205,7 @@ class Stack(object):
         self.notifications = notifications or []
 
         self.hooks = hooks or {}
+        self.raw_config = raw_config or {}
 
     def __repr__(self):
         return (

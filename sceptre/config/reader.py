@@ -414,6 +414,7 @@ class ConfigReader(object):
             j2_environment = Environment(**j2_environment_config)
             template = j2_environment.get_template(basename)
             self.templating_vars.update(stack_group_config)
+            self.templating_vars.update(environment_config=stack_group_config)
             rendered_template = template.render(
                 self.templating_vars,
                 command_path=self.context.command_path.split(path.sep),

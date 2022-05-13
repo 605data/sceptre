@@ -8,6 +8,7 @@ from jinja2 import Environment, select_autoescape, FileSystemLoader, StrictUndef
 from pathlib import Path
 from sceptre.exceptions import TemplateSceptreHandlerError, TemplateNotFoundError
 from sceptre.config import strategies
+from sceptre.helpers import get_jinja_filters
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +128,9 @@ def render_jinja_template(path, jinja_vars, j2_environment):
         raise TemplateNotFoundError("No such template file: '%s'", path)
 
     logger.debug("%s Rendering CloudFormation template", path)
+    
+    j2_custom_filters = get_jinja_filters()
+
     default_j2_environment_config = {
         "autoescape": select_autoescape(
             disabled_extensions=('j2',),
@@ -139,6 +143,8 @@ def render_jinja_template(path, jinja_vars, j2_environment):
         default_j2_environment_config, j2_environment
     )
     j2_environment = Environment(**j2_environment_config)
+    j2_environment.filters.update(j2_custom_filters)
+    logger.debug("added jinja filters: {}".format(list(j2_custom_filters.keys())))
 
     template = j2_environment.get_template(path.name)
 

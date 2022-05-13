@@ -1,9 +1,53 @@
 # -*- coding: utf-8 -*-
+import glob
+import logging
+import imp
 from contextlib import contextmanager
 from os import sep
+from os import environ
+from os import path
 
 from sceptre.exceptions import PathConversionError
 
+LOGGER = logging.getLogger(__name__)
+
+class RecursiveResolve(Exception):
+    pass
+
+def get_jinja_filters():
+    """
+    Returns cached jinja filters if already computed, or loads/caches
+    the filters from python files if this is the first time. 
+    """
+    if hasattr(get_jinja_filters, '_jinja_filters'):
+        return get_jinja_filters._jinja_filters
+    env_var_name = 'SCEPTRE_JINJA_FILTER_ROOT'
+    if env_var_name not in environ:
+        msg = '${} is not set, no extra jinja filters will be loaded'
+        LOGGER.warning(msg.format(env_var_name))
+        get_jinja_filters._jinja_filters = {}
+        return get_jinja_filters._jinja_filters
+    else:
+        filter_dir = environ[env_var_name]
+        if not path.exists(filter_dir):
+            err = '${} is set, but directory does not exist!'
+            raise ValueError(err.format(env_var_name))
+        else:
+            msg = 'loading jinja filters from {}'
+            LOGGER.debug(msg.format(filter_dir))
+            get_jinja_filters._jinja_filters = {}
+            for fpath in glob.glob(path.join(filter_dir, '*.py')):
+                LOGGER.debug('  loading filter: {}'.format(fpath))
+                mod = imp.load_source('dynamic_jinja_filters', fpath)
+                for name in dir(mod):
+                    # Ignore anything like private methods
+                    if name.startswith('_'):
+                        continue
+                    else:
+                        fxn = getattr(mod, name)
+                        if callable(fxn):
+                            get_jinja_filters._jinja_filters[name] = fxn
+            return get_jinja_filters._jinja_filters
 
 def get_external_stack_name(project_code, stack_name):
     """
@@ -60,7 +104,7 @@ def _call_func_on_values(func, attr, cls):
             _call_func_on_values(func, value, cls)
 
     if isinstance(attr, dict):
-        for key, value in attr.items():
+        for key, value in attr.copy().items():
             func_on_instance(key)
     elif isinstance(attr, list):
         for index, value in enumerate(attr):

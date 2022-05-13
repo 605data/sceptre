@@ -33,6 +33,7 @@ from sceptre.exceptions import InvalidSceptreDirectoryError
 from sceptre.exceptions import VersionIncompatibleError
 from sceptre.exceptions import ConfigFileNotFoundError
 from sceptre.helpers import sceptreise_path
+from sceptre.helpers import get_jinja_filters
 from sceptre.stack import Stack
 from sceptre.config import strategies
 
@@ -411,7 +412,9 @@ class ConfigReader(object):
             j2_environment_config = strategies.dict_merge(
                 default_j2_environment_config,
                 stack_group_config.get("j2_environment", {}))
+            j2_custom_filters = get_jinja_filters()
             j2_environment = Environment(**j2_environment_config)
+            j2_environment.filters.update(j2_custom_filters)
             template = j2_environment.get_template(basename)
             self.templating_vars.update(stack_group_config)
             self.templating_vars.update(environment_config=stack_group_config)

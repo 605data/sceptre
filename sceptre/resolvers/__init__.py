@@ -290,7 +290,9 @@ class ResolvableContainerProperty(ResolvableProperty):
             # break that infinite loop. This situation would happen if a resolver accesses a resolver
             # in the same container, which then accesses another resolver (possibly the same one) in
             # the same container.
-            raise RecursiveResolve(f"Resolving Stack.{self.name[1:]} required resolving itself")
+            # Increase verbosity of the recursive resolve, so we can debug:
+            raise RecursiveResolve("Resolving {} required resolving itself, when working to resolve {}, {}, {}".format(self.name[1:], attr, key, value))
+            # raise RecursiveResolve(f"Resolving Stack.{self.name[1:]} required resolving itself")
 
         has_been_resolved_attr_name = f'{self.name}_is_resolved'
         if not getattr(stack, has_been_resolved_attr_name, False):

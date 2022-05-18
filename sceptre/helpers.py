@@ -97,6 +97,7 @@ def _call_func_on_values(func, attr, cls):
     :rtype: dict or list
     """
 
+    LOGGER.info("CALLING {} ON TYPES {} OF {}".format(func, attr, cls))
     def func_on_instance(key):
         if isinstance(value, cls):
             func(attr, key, value)

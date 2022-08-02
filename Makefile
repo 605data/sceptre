@@ -13,7 +13,7 @@ MAKE_INCLUDES_DIR := ${SRC_ROOT}/.makefiles
 include ${MAKE_INCLUDES_DIR}/Makefile.605-pypi.mk
 
 pypi-version:
-	@printf "`cat setup.cfg|grep current_version | awk '{print $$3}'`-`git rev-parse HEaD`\n"
+	@printf "`cat setup.cfg|grep current_version | awk '{print $$3}'`-`git rev-parse HEAD`\n"
 
 push:
 	mv dist/sceptre-2.3.0.tar.gz dist/sceptre-2.3.0-`git rev-parse HEAD`.tar.gz

@@ -18,26 +18,15 @@ pipeline {
       // (we might want these branches to trigger push or deploy stages)
       branches = [
         master:"origin/master",
-        fork_2_3_0:"2.3.0-fork",
+        fork_2_3_0:"origin/2.3.0-fork",
       ]
       // these are the branches that get pushed to pypi (or ECR) on success
       push_branches = [branches.fork_2_3_0]
       github_status_605(status:'PENDING');
       withVenv(
         python:"python3.7",
-        script:"make clean && pip install -r requirements/dev.txt")
+        script:"make clean && pip install twine")
     }}} //script // steps // stage:init
-
-    stage("STATIC-ANALYSIS"){ steps{
-      ansiColor('xterm') {
-        script {
-          // this runs static-analysis but not strictly
-          // (doesn't allow it to fail the build)
-          withVenv(
-            script:"make lint || true")
-        }
-      } // ansiColor
-    } } // steps // stage:static-analysis
 
     // build stage might mean creating packages or containers or both
     stage("BUILD"){ steps {

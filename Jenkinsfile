@@ -25,7 +25,7 @@ pipeline {
       github_status_605(status:'PENDING');
       withVenv(
         python:"python3.7",
-        script:"make clean && pip install twine")
+        script:"make clean && pip install twine==4.0.1")
     }}} //script // steps // stage:init
 
     // build stage might mean creating packages or containers or both

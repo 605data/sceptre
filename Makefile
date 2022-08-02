@@ -1,3 +1,24 @@
+
+THIS_MAKEFILE := $(abspath $(firstword $(MAKEFILE_LIST)))
+THIS_MAKEFILE := `python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' ${THIS_MAKEFILE}`
+SRC_ROOT := $(shell dirname ${THIS_MAKEFILE})
+
+
+# WARNING: these vars must come before the includes
+# FIXME: next line could use default if repo were renamed from https://github.com/605data/lib-605 to https://github.com/605data/lib605
+PYPI_PROJECT_NAME:=sceptre
+
+# lib includes
+MAKE_INCLUDES_DIR := ${SRC_ROOT}/.makefiles
+include ${MAKE_INCLUDES_DIR}/Makefile.605-pypi.mk
+
+pypi-version:
+	@printf "`cat setup.cfg|grep current_version | awk '{print $$3}'`-`git rev-parse HEaD`\n"
+
+push:
+	mv dist/sceptre-2.3.0.tar.gz dist/sceptre-2.3.0-`git rev-parse HEAD`.tar.gz
+	make pypi-push
+
 .PHONY: clean-pyc clean-build docs clean docs
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys

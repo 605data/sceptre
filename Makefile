@@ -16,8 +16,8 @@ pypi-version:
 	@printf "`cat setup.cfg|grep current_version | awk '{print $$3}'`-`git rev-parse HEAD`\n"
 
 push:
-	mv dist/sceptre-2.3.0.tar.gz dist/sceptre-2.3.0-`git rev-parse HEAD`.tar.gz
-	make pypi-push
+	@mv dist/sceptre-2.3.0.tar.gz dist/sceptre-2.3.0-`git rev-parse HEAD`.tar.gz
+	@make pypi-push
 
 .PHONY: clean-pyc clean-build docs clean docs
 define BROWSER_PYSCRIPT

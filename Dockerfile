@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM python:3.13.0b3-alpine
 RUN apk add --no-cache bash
 WORKDIR /app
 COPY setup.cfg setup.py README.md CHANGELOG.md ./
